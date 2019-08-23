@@ -2,4 +2,5 @@
 members = [
     "opaque-typedef",
     "opaque-typedef-macros",
+    "opaque-typedef-tests",
 ]

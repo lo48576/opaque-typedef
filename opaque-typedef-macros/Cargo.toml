@@ -12,7 +12,14 @@ keywords = ["derive", "opaque", "strong", "typedef"]
 [package.metadata.docs.rs]
 all-features = true
 
+[lib]
+proc-macro = true
+
 [dependencies]
+proc-macro2 = "1"
+quote = "1"
+#syn = { version = "1.0.3", features = ["derive", "full", "extra-traits", "parsing", "printing", "proc-macro"] }
+syn = { version = "1.0.3", features = ["derive", "full", "parsing", "printing", "proc-macro"] }
 
 [badges]
 maintenance = { status = "experimental" }

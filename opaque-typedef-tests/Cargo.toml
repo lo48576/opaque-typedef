@@ -1,22 +1,16 @@
 [package]
-name = "opaque-typedef"
+name = "opaque-typedef-tests"
 version = "0.1.0-alpha.0"
 authors = ["YOSHIOKA Takuma <lo48576@hard-wi.red>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-description = "Easy opaque typedef for Rust"
+description = "Tests for opaque-typedef crate"
 repository = "https://github.com/lo48576/opaque-typedef"
-keywords = ["derive", "opaque", "strong", "typedef"]
-
-[package.metadata.docs.rs]
-all-features = true
-
-[features]
-derive = ["opaque-typedef-macros"]
+publish = false
 
 [dependencies]
-opaque-typedef-macros = { version = "0.1.0-alpha.0", optional = true, path = "../opaque-typedef-macros" }
+opaque-typedef = { path = "../opaque-typedef", features = ["derive"] }
 
 [badges]
 maintenance = { status = "experimental" }

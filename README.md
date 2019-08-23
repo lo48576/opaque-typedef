@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/lo48576/opaque-typedef.svg?branch=develop)](https://travis-ci.org/lo48576/opaque-typedef)
 ![Minimum rustc version: 1.37](https://img.shields.io/badge/rustc-1.37+-lightgray.svg)
 
+This crate helps developers to define opaque type alias with less boilerplates and `unsafe`.
 
 ## License
 
