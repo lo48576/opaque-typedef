@@ -21,28 +21,40 @@ pub(crate) mod input;
 #[proc_macro_derive(OpaqueTypedefSized, attributes(opaque_typedef))]
 pub fn opaque_typedef_sized(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = syn::parse(input).unwrap();
-    gen_base_sized(&Input::new(&input)).into()
+    match Input::new(&input) {
+        Ok(input) => gen_base_sized(&input).into(),
+        Err(e) => e.to_compile_error().into(),
+    }
 }
 
 /// The entrypoint for `#[derive(OpaqueTypedefSizedInfallible)]`-ed types.
 #[proc_macro_derive(OpaqueTypedefSizedInfallible, attributes(opaque_typedef))]
 pub fn opaque_typedef_sized_infallible(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = syn::parse(input).unwrap();
-    gen_base_sized_infallible(&Input::new(&input)).into()
+    match Input::new(&input) {
+        Ok(input) => gen_base_sized_infallible(&input).into(),
+        Err(e) => e.to_compile_error().into(),
+    }
 }
 
 /// The entrypoint for `#[derive(OpaqueTypedefSizedMut)]`-ed types.
 #[proc_macro_derive(OpaqueTypedefSizedMut, attributes(opaque_typedef))]
 pub fn opaque_typedef_sized_mut(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = syn::parse(input).unwrap();
-    gen_base_sized_mut(&Input::new(&input)).into()
+    match Input::new(&input) {
+        Ok(input) => gen_base_sized_mut(&input).into(),
+        Err(e) => e.to_compile_error().into(),
+    }
 }
 
 /// The entrypoint for `#[derive(OpaqueTypedefUnsized)]`-ed types.
 #[proc_macro_derive(OpaqueTypedefUnsized, attributes(opaque_typedef))]
 pub fn opaque_typedef_unsized(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = syn::parse(input).unwrap();
-    gen_base_unsized(&Input::new(&input)).into()
+    match Input::new(&input) {
+        Ok(input) => gen_base_unsized(&input).into(),
+        Err(e) => e.to_compile_error().into(),
+    }
 }
 
 /// The entrypoint for `#[derive(OpaqueTypedefUnsizedInfallible)]`-ed types.
@@ -51,14 +63,20 @@ pub fn opaque_typedef_unsized_infallible(
     input: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
     let input = syn::parse(input).unwrap();
-    gen_base_unsized_infallible(&Input::new(&input)).into()
+    match Input::new(&input) {
+        Ok(input) => gen_base_unsized_infallible(&input).into(),
+        Err(e) => e.to_compile_error().into(),
+    }
 }
 
 /// The entrypoint for `#[derive(OpaqueTypedefUnsizedMut)]`-ed types.
 #[proc_macro_derive(OpaqueTypedefUnsizedMut, attributes(opaque_typedef))]
 pub fn opaque_typedef_unsized_mut(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = syn::parse(input).unwrap();
-    gen_base_unsized_mut(&Input::new(&input)).into()
+    match Input::new(&input) {
+        Ok(input) => gen_base_unsized_mut(&input).into(),
+        Err(e) => e.to_compile_error().into(),
+    }
 }
 
 /// The entrypoint for `#[derive(OpaqueTypedefUnsizedInfallibleMut)]`-ed types.
@@ -67,5 +85,8 @@ pub fn opaque_typedef_unsized_infallible_mut(
     input: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
     let input = syn::parse(input).unwrap();
-    gen_base_unsized_infallible_mut(&Input::new(&input)).into()
+    match Input::new(&input) {
+        Ok(input) => gen_base_unsized_infallible_mut(&input).into(),
+        Err(e) => e.to_compile_error().into(),
+    }
 }

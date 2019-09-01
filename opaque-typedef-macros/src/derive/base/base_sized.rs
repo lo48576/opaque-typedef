@@ -79,7 +79,7 @@ mod tests {
             #[derive(OpaqueTypedefSized)]
             pub struct Simple<T>(pub T);
         };
-        let toks = gen_base_sized(&Input::new(&input));
+        let toks = gen_base_sized(&Input::new(&input).unwrap());
         let expected = quote! {
             impl<T> opaque_typedef::OpaqueTypedefSized for Simple<T> {
                 type Inner = T;
@@ -110,7 +110,7 @@ mod tests {
                 inner: T,
             }
         };
-        let toks = gen_base_sized(&Input::new(&input));
+        let toks = gen_base_sized(&Input::new(&input).unwrap());
         let expected = quote! {
             impl<T> opaque_typedef::OpaqueTypedefSized for Simple<T> {
                 type Inner = T;
@@ -138,7 +138,7 @@ mod tests {
             #[derive(OpaqueTypedefSized)]
             pub struct Simple<T: Clone>(pub T);
         };
-        let toks = gen_base_sized(&Input::new(&input));
+        let toks = gen_base_sized(&Input::new(&input).unwrap());
         let expected = quote! {
             impl<T: Clone> opaque_typedef::OpaqueTypedefSized for Simple<T> {
                 type Inner = T;
@@ -172,7 +172,7 @@ mod tests {
                 tag: Tag,
             }
         };
-        let toks = gen_base_sized(&Input::new(&input));
+        let toks = gen_base_sized(&Input::new(&input).unwrap());
         let expected = quote! {
             impl<T, Tag> opaque_typedef::OpaqueTypedefSized for Tagged<T, Tag> {
                 type Inner = T;
@@ -206,7 +206,7 @@ mod tests {
             #[derive(OpaqueTypedefSized)]
             pub struct Simple<T>(#[opaque_typedef(inner)] pub T);
         };
-        let toks = gen_base_sized(&Input::new(&input));
+        let toks = gen_base_sized(&Input::new(&input).unwrap());
         let expected = quote! {
             impl<T> opaque_typedef::OpaqueTypedefSized for Simple<T> {
                 type Inner = T;
@@ -235,7 +235,7 @@ mod tests {
             #[opaque_typedef(hide_base_impl_docs)]
             pub struct Simple<T>(pub T);
         };
-        let toks = gen_base_sized(&Input::new(&input));
+        let toks = gen_base_sized(&Input::new(&input).unwrap());
         let expected = quote! {
             #[doc(hidden)]
             impl<T> opaque_typedef::OpaqueTypedefSized for Simple<T> {
@@ -271,7 +271,7 @@ mod tests {
             ))]
             pub struct MyString(Vec<u8>);
         };
-        let toks = gen_base_sized(&Input::new(&input));
+        let toks = gen_base_sized(&Input::new(&input).unwrap());
         let expected = quote! {
             impl opaque_typedef::OpaqueTypedefSized for MyString {
                 type Inner = Vec<u8>;

@@ -1,6 +1,6 @@
 //! Attributes-related helpers.
 
-use syn::{Expr, Lit, Meta, NestedMeta, Path, Type};
+use syn::{spanned::Spanned, Expr, Lit, Meta, NestedMeta, Path, Type};
 
 /// Extension for `syn::Meta` type.
 pub trait MetaExt {
@@ -9,9 +9,9 @@ pub trait MetaExt {
     /// Returns `true` if the meta has the word at depth 2, such as `foo(bar)` or path `foo::bar`.
     fn has_level2_word(&self, level1: &str, level2: &str) -> bool;
     /// Returns validator if available.
-    fn validator(&self) -> Option<Expr>;
+    fn validator(&self) -> Result<Option<Expr>, syn::Error>;
     /// Returns validation error type if available.
-    fn ty_validation_error(&self) -> Option<Type>;
+    fn ty_validation_error(&self) -> Result<Option<Type>, syn::Error>;
 }
 
 impl MetaExt for Meta {
@@ -46,7 +46,7 @@ impl MetaExt for Meta {
         }
     }
 
-    fn validator(&self) -> Option<Expr> {
+    fn validator(&self) -> Result<Option<Expr>, syn::Error> {
         find_validation_metas(self)
             .find_map(|meta| match meta {
                 Meta::NameValue(namevalue) if namevalue.path.is_ident("validator") => {
@@ -55,12 +55,21 @@ impl MetaExt for Meta {
                 _ => None,
             })
             .map(|lit| match lit {
-                Lit::Str(s) => s.parse().expect("Failed to parse validator"),
-                _ => panic!("Expected string literal as validator, but got other literal"),
+                Lit::Str(s) => s.parse().map_err(|e| {
+                    syn::Error::new(
+                        lit.span(),
+                        format!("Failed to parse validator function: {}", e),
+                    )
+                }),
+                _ => Err(syn::Error::new(
+                    lit.span(),
+                    "Expected string literal as validator, but got other literal",
+                )),
             })
+            .transpose()
     }
 
-    fn ty_validation_error(&self) -> Option<Type> {
+    fn ty_validation_error(&self) -> Result<Option<Type>, syn::Error> {
         find_validation_metas(self)
             .find_map(|meta| match meta {
                 Meta::NameValue(namevalue) if namevalue.path.is_ident("error") => {
@@ -69,11 +78,18 @@ impl MetaExt for Meta {
                 _ => None,
             })
             .map(|lit| match lit {
-                Lit::Str(s) => s.parse().expect("Failed to parse validation error type"),
-                _ => panic!(
-                    "Expected string literal as validation error type, but got other literal"
-                ),
+                Lit::Str(s) => s.parse().map_err(|e| {
+                    syn::Error::new(
+                        lit.span(),
+                        format!("Failed to parse validation error type: {}", e),
+                    )
+                }),
+                _ => Err(syn::Error::new(
+                    lit.span(),
+                    "Expected string literal as validation error type, but got other literal",
+                )),
             })
+            .transpose()
     }
 }
 

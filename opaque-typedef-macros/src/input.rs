@@ -26,7 +26,7 @@ pub struct Input<'a> {
 
 impl<'a> Input<'a> {
     /// Creates an `Input` form the given `DeriveInput`.
-    pub fn new(derive_input: &'a DeriveInput) -> Self {
+    pub fn new(derive_input: &'a DeriveInput) -> Result<Self, syn::Error> {
         let primary_field = get_primary_field(fields(&derive_input.data));
         let meta_attrs = derive_input
             .attrs
@@ -36,19 +36,23 @@ impl<'a> Input<'a> {
         let should_hide_base_impl_docs = meta_attrs
             .iter()
             .any(|meta| meta.has_level2_word("opaque_typedef", "hide_base_impl_docs"));
-        let validator = meta_attrs.iter().find_map(|attr| attr.validator());
+        let validator = meta_attrs
+            .iter()
+            .find_map(|attr| attr.validator().transpose())
+            .transpose()?;
         let ty_validation_error = meta_attrs
             .iter()
-            .find_map(|attr| attr.ty_validation_error());
+            .find_map(|attr| attr.ty_validation_error().transpose())
+            .transpose()?;
 
-        Self {
+        Ok(Self {
             derive_input,
             primary_field,
             should_hide_base_impl_docs,
             meta_attrs,
             validator,
             ty_validation_error,
-        }
+        })
     }
 
     /// Returns the identifier of the type.

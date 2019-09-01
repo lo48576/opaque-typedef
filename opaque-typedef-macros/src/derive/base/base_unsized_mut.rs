@@ -45,7 +45,7 @@ mod tests {
                 #[repr(#repr)]
                 pub struct Simple<T>(T);
             };
-            let toks = gen_base_unsized_mut(&Input::new(&input));
+            let toks = gen_base_unsized_mut(&Input::new(&input).unwrap());
             let expected = quote! {
                 impl<T> opaque_typedef::OpaqueTypedefUnsizedMut for Simple<T> {
                     fn try_from_inner_mut(__inner: &mut Self::Inner) -> Result<&mut Self, Self::Error> {
@@ -73,7 +73,7 @@ mod tests {
                 inner: T,
             }
         };
-        let toks = gen_base_unsized_mut(&Input::new(&input));
+        let toks = gen_base_unsized_mut(&Input::new(&input).unwrap());
         let expected = quote! {
             impl<T> opaque_typedef::OpaqueTypedefUnsizedMut for Simple<T> {
                 fn try_from_inner_mut(__inner: &mut Self::Inner) -> Result<&mut Self, Self::Error> {
@@ -97,7 +97,7 @@ mod tests {
             #[repr(transparent)]
             pub struct Simple<T: Debug>(T);
         };
-        let toks = gen_base_unsized_mut(&Input::new(&input));
+        let toks = gen_base_unsized_mut(&Input::new(&input).unwrap());
         let expected = quote! {
             impl<T: Debug> opaque_typedef::OpaqueTypedefUnsizedMut for Simple<T> {
                 fn try_from_inner_mut(__inner: &mut Self::Inner) -> Result<&mut Self, Self::Error> {
@@ -127,7 +127,7 @@ mod tests {
                 tag: Tag,
             }
         };
-        let toks = gen_base_unsized_mut(&Input::new(&input));
+        let toks = gen_base_unsized_mut(&Input::new(&input).unwrap());
         let expected = quote! {
             impl<T, Tag> opaque_typedef::OpaqueTypedefUnsizedMut for Tagged<T, Tag> {
                 fn try_from_inner_mut(__inner: &mut Self::Inner) -> Result<&mut Self, Self::Error> {
@@ -151,7 +151,7 @@ mod tests {
             #[repr(transparent)]
             pub struct Simple<T>(#[opaque_typedef(inner)] T);
         };
-        let toks = gen_base_unsized_mut(&Input::new(&input));
+        let toks = gen_base_unsized_mut(&Input::new(&input).unwrap());
         let expected = quote! {
             impl<T> opaque_typedef::OpaqueTypedefUnsizedMut for Simple<T> {
                 fn try_from_inner_mut(__inner: &mut Self::Inner) -> Result<&mut Self, Self::Error> {
@@ -176,7 +176,7 @@ mod tests {
             #[opaque_typedef(hide_base_impl_docs)]
             pub struct Simple<T>(pub T);
         };
-        let toks = gen_base_unsized_mut(&Input::new(&input));
+        let toks = gen_base_unsized_mut(&Input::new(&input).unwrap());
         let expected = quote! {
             #[doc(hidden)]
             impl<T> opaque_typedef::OpaqueTypedefUnsizedMut for Simple<T> {
@@ -202,6 +202,6 @@ mod tests {
             #[derive(OpaqueTypedefUnsized, OpaqueTypedefUnsizedMut)]
             struct MyStr(str);
         };
-        let _ = gen_base_unsized_mut(&Input::new(&input));
+        let _ = gen_base_unsized_mut(&Input::new(&input).unwrap());
     }
 }
