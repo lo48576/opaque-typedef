@@ -19,6 +19,17 @@ pub fn gen_base_unsized_infallible(input: &Input) -> syn::Result<TokenStream> {
 
     let ty = input.ident();
     let (generics_impl, generics_ty, generics_where) = input.generics().split_for_impl();
+    // This `unsafe` is safe if all the conditions below are met.
+    //
+    // * The type has just one unsized field and zero or more zero-sized field.
+    //     + Rustc ensures "if there are unsized fields, it should be just one and all other fields
+    //       are zero-sized types.
+    //     + Currently, proc macro cannot check if a field has unsized type or not.
+    //       Therefore, **library users are responsible to guarantee that**.
+    // * The type has `#[repr(transparent)]` or `#[repr(C)]`.
+    //     + This is already checked by `input.ensure_acceptable_unsized_repr_or_panic()`.
+    //
+    // This `unsafe` is necessary to convert an unsized type to a wrapper type.
     let expr_from_inner = quote!(unsafe { &*(__inner as *const Self::Inner as *const Self) });
     let base_impl_attrs = input.base_impl_attrs();
 

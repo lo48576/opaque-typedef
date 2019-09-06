@@ -19,6 +19,8 @@ pub fn gen_base_unsized_infallible_mut(input: &Input) -> syn::Result<TokenStream
 
     let ty = input.ident();
     let (generics_impl, generics_ty, generics_where) = input.generics().split_for_impl();
+    // Safety condition of this `unsafe` is same as that of `base_unsized_infallible()`.
+    // Note that using the resulting expression is always safe.
     let expr_from_inner = quote!(unsafe { &mut *(__inner as *mut Self::Inner as *mut Self) });
     let base_impl_attrs = input.base_impl_attrs();
 

@@ -17,6 +17,23 @@ pub fn gen_base_unsized(input: &Input) -> TokenStream {
         || quote!(__inner),
         |validator| quote!((#validator)(__inner)?),
     );
+    // This `unsafe` is safe if all the conditions below are met.
+    //
+    // * The expression `#inner_validated` is consistently validated (if a validator is specified).
+    //     + This is guaranteed by how `inner_validated` is created.
+    // * The all fields expept one marked as "inner" have zero-sized types.
+    //     + The field marked as "inner" need not have unsized type, but `OpaqueTypedefSized` is
+    //       more appropriate for sized inner type.
+    //     + Rustc ensures "if there are unsized fields, it should be just one and all other fields
+    //       are zero-sized types.
+    //     + Currently, proc macro cannot check if a type is unsized or not.
+    //       Therefore, **library users are responsible to guarantee that**.
+    // * The type has `#[repr(transparent)]` or `#[repr(C)]`.
+    //     + This is already checked by `input.ensure_acceptable_unsized_repr_or_panic()`.
+    //
+    // So, **user should guarantee that the inner type has an unsized type**.
+    //
+    // This `unsafe` is necessary to convert an unsized type to a wrapper type.
     let expr_try_from_inner =
         quote!(Ok(unsafe { &*(#inner_validated as *const Self::Inner as *const Self) }));
     let expr_from_inner_unchecked = quote!(&*(__inner as *const Self::Inner as *const Self));

@@ -12,6 +12,10 @@ pub fn gen_base_unsized_mut(input: &Input) -> TokenStream {
     let (generics_impl, generics_ty, generics_where) = input.generics().split_for_impl();
     let primary_field_accessor = input.primary_field().accessor();
     let expr_from_inner_unchecked = quote!(&mut *(__inner as *mut Self::Inner as *mut Self));
+    // Safety condition of this `unsafe` is same as that of `base_unsized()`.
+    // Note that using the resulting expression is NOT always safe.
+    // i.e. unrestricted modification to the inner field may make the value internally inconsistent
+    // and result in undefined behaivor.
     let expr_from_inner = quote!(unsafe { #expr_from_inner_unchecked });
     let base_impl_attrs = input.base_impl_attrs();
 
