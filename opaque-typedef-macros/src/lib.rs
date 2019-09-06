@@ -32,7 +32,9 @@ pub fn opaque_typedef_sized(input: proc_macro::TokenStream) -> proc_macro::Token
 pub fn opaque_typedef_sized_infallible(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = syn::parse(input).unwrap();
     match Input::new(&input) {
-        Ok(input) => gen_base_sized_infallible(&input).into(),
+        Ok(input) => gen_base_sized_infallible(&input)
+            .unwrap_or_else(|e| e.to_compile_error())
+            .into(),
         Err(e) => e.to_compile_error().into(),
     }
 }
@@ -64,7 +66,9 @@ pub fn opaque_typedef_unsized_infallible(
 ) -> proc_macro::TokenStream {
     let input = syn::parse(input).unwrap();
     match Input::new(&input) {
-        Ok(input) => gen_base_unsized_infallible(&input).into(),
+        Ok(input) => gen_base_unsized_infallible(&input)
+            .unwrap_or_else(|e| e.to_compile_error())
+            .into(),
         Err(e) => e.to_compile_error().into(),
     }
 }
@@ -86,7 +90,9 @@ pub fn opaque_typedef_unsized_infallible_mut(
 ) -> proc_macro::TokenStream {
     let input = syn::parse(input).unwrap();
     match Input::new(&input) {
-        Ok(input) => gen_base_unsized_infallible_mut(&input).into(),
+        Ok(input) => gen_base_unsized_infallible_mut(&input)
+            .unwrap_or_else(|e| e.to_compile_error())
+            .into(),
         Err(e) => e.to_compile_error().into(),
     }
 }

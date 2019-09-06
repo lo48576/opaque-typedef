@@ -2,25 +2,34 @@
 
 use proc_macro2::TokenStream;
 use quote::quote;
+use syn::spanned::Spanned;
 
 use crate::input::Input;
 
 /// Generate impl for `OpaqueTypedefUnsizedInfallible`.
-pub fn gen_base_unsized_infallible(input: &Input) -> TokenStream {
+pub fn gen_base_unsized_infallible(input: &Input) -> syn::Result<TokenStream> {
+    if let Some(validator) = input.validator() {
+        // A validator is specified and it may fail.
+        return Err(syn::Error::new(
+            validator.span(),
+            "Validator and `OpaqueTypedefUnsizedInfallible` cannot be specified at the same time",
+        ));
+    }
     input.ensure_acceptable_unsized_repr_or_panic();
+
     let ty = input.ident();
     let (generics_impl, generics_ty, generics_where) = input.generics().split_for_impl();
     let expr_from_inner = quote!(unsafe { &*(__inner as *const Self::Inner as *const Self) });
     let base_impl_attrs = input.base_impl_attrs();
 
-    quote! {
+    Ok(quote! {
         #base_impl_attrs
         impl #generics_impl opaque_typedef::OpaqueTypedefUnsizedInfallible for #ty #generics_ty #generics_where {
             fn from_inner(__inner: &Self::Inner) -> &Self {
                 #expr_from_inner
             }
         }
-    }
+    })
 }
 
 #[cfg(test)]
@@ -35,7 +44,7 @@ mod tests {
                 #[repr(#repr)]
                 pub struct Simple<T>(T);
             };
-            let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap());
+            let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap()).unwrap();
             let expected = quote! {
                 impl<T> opaque_typedef::OpaqueTypedefUnsizedInfallible for Simple<T> {
                     fn from_inner(__inner: &Self::Inner) -> &Self {
@@ -57,7 +66,7 @@ mod tests {
                 inner: T,
             }
         };
-        let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap());
+        let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap()).unwrap();
         let expected = quote! {
             impl<T> opaque_typedef::OpaqueTypedefUnsizedInfallible for Simple<T> {
                 fn from_inner(__inner: &Self::Inner) -> &Self {
@@ -75,7 +84,7 @@ mod tests {
             #[repr(transparent)]
             pub struct Simple<T: Debug>(T);
         };
-        let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap());
+        let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap()).unwrap();
         let expected = quote! {
             impl<T: Debug> opaque_typedef::OpaqueTypedefUnsizedInfallible for Simple<T> {
                 fn from_inner(__inner: &Self::Inner) -> &Self {
@@ -99,7 +108,7 @@ mod tests {
                 tag: Tag,
             }
         };
-        let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap());
+        let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap()).unwrap();
         let expected = quote! {
             impl<T, Tag> opaque_typedef::OpaqueTypedefUnsizedInfallible for Tagged<T, Tag> {
                 fn from_inner(__inner: &Self::Inner) -> &Self {
@@ -117,7 +126,7 @@ mod tests {
             #[repr(transparent)]
             pub struct Simple<T>(#[opaque_typedef(inner)] T);
         };
-        let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap());
+        let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap()).unwrap();
         let expected = quote! {
             impl<T> opaque_typedef::OpaqueTypedefUnsizedInfallible for Simple<T> {
                 fn from_inner(__inner: &Self::Inner) -> &Self {
@@ -136,7 +145,7 @@ mod tests {
             #[opaque_typedef(hide_base_impl_docs)]
             pub struct Simple<T>(pub T);
         };
-        let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap());
+        let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap()).unwrap();
         let expected = quote! {
             #[doc(hidden)]
             impl<T> opaque_typedef::OpaqueTypedefUnsizedInfallible for Simple<T> {
@@ -156,6 +165,17 @@ mod tests {
             #[derive(OpaqueTypedefUnsized, OpaqueTypedefUnsizedInfallible)]
             struct MyStr(str);
         };
-        let _ = gen_base_unsized_infallible(&Input::new(&input).unwrap());
+        let _ = gen_base_unsized_infallible(&Input::new(&input).unwrap()).unwrap();
+    }
+
+    #[test]
+    fn with_validator() {
+        let input = syn::parse_quote! {
+            #[derive(OpaqueTypedefUnsized, OpaqueTypedefUnsizedInfallible)]
+            #[opaque_typedef(validate(error = "Error", validator = "validate"))]
+            pub struct Simple<T>(T);
+        };
+        let toks = gen_base_unsized_infallible(&Input::new(&input).unwrap());
+        assert!(toks.is_err());
     }
 }
