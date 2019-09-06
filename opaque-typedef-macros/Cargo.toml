@@ -1,0 +1,26 @@
+[package]
+name = "opaque-typedef-macros"
+version = "0.1.0-alpha.0"
+authors = ["YOSHIOKA Takuma <lo48576@hard-wi.red>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+description = "Easy opaque typedef for Rust"
+repository = "https://github.com/lo48576/opaque-typedef"
+keywords = ["derive", "opaque", "strong", "typedef"]
+
+[package.metadata.docs.rs]
+all-features = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1"
+quote = "1"
+#syn = { version = "1.0.3", features = ["derive", "full", "extra-traits", "parsing", "printing", "proc-macro"] }
+syn = { version = "1.0.3", features = ["derive", "full", "parsing", "printing", "proc-macro"] }
+
+[badges]
+maintenance = { status = "experimental" }
+travis-ci = { repository = "lo48576/opaque-typedef" }

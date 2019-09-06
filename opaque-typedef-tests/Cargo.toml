@@ -1,0 +1,17 @@
+[package]
+name = "opaque-typedef-tests"
+version = "0.1.0-alpha.0"
+authors = ["YOSHIOKA Takuma <lo48576@hard-wi.red>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+description = "Tests for opaque-typedef crate"
+repository = "https://github.com/lo48576/opaque-typedef"
+publish = false
+
+[dependencies]
+opaque-typedef = { path = "../opaque-typedef", features = ["derive"] }
+
+[badges]
+maintenance = { status = "experimental" }
+travis-ci = { repository = "lo48576/opaque-typedef" }
